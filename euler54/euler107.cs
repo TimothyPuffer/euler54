@@ -32,33 +32,36 @@ namespace euler54
 
             List<Tuple<int, int, int>> edgeVisited = new List<Tuple<int, int, int>>();
 
-            edgeVisited.Add(edges.OrderBy(f => f.Item3).First());
-
-
-            var allNodes = edges.Select(f => f.Item1).Distinct();
-            var connectedNodes = edgeVisited.Select(f => f.Item1).Union(edgeVisited.Select(f => f.Item2)).Distinct();
-            var unConnectedNodes = allNodes.Except(connectedNodes);
-
-            while (unConnectedNodes.Any())
+            Func<int, IEnumerable<int>> AllConnectedNodes = delegate(int a)
             {
-                var addConnection = from e in edges
-                                    where connectedNodes.Contains(e.Item1) && unConnectedNodes.Contains(e.Item2)
-                                    orderby e.Item3
-                                    select e;
-                var addEdge = addConnection.First();
-                edgeVisited.Add(addEdge);
+                int lastConnectCount = -1;
+                List<int> con = new List<int>(new int [] {a});
+                while (lastConnectCount != con.Count)
+                {
+                    lastConnectCount = con.Count;
+                    var eee = from e in edgeVisited
+                            where con.Contains(e.Item1) || con.Contains(e.Item2)
+                            select new int[] { e.Item1, e.Item2 };
+                    foreach (var e in eee)
+                        con.AddRange(e);
+                    con = con.Distinct().ToList();
+                }
+                return con;
+            };
+
+            Func<int, int, bool> CreateCycle = delegate(int a, int b)
+            {
+                return AllConnectedNodes(a).Contains(b);
+            };
+
+
+            while (true)
+            {
+                edgeVisited.Add(edges.OrderBy(f=>f.Item3).First(f => !CreateCycle(f.Item1, f.Item2)));
             }
 
-            return edgeVisited.Select(f=> f.Item3).Sum();
+            return edgeVisited.Select(f => f.Item3).Sum();
         }
 
-        static int NodeParse(string s)
-        {
-            int ret = 0;
-            if(int.TryParse(s,out ret))
-                return ret;
-            else
-                return -1;
-        }
     }
 }
