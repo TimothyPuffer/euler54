@@ -47,6 +47,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>CardText.resx</DependentUpon>
     </Compile>
+    <Compile Include="euler107.cs" />
     <Compile Include="euler109.cs" />
     <Compile Include="euler142.cs" />
     <Compile Include="euler54.cs" />
